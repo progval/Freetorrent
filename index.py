@@ -55,7 +55,7 @@ def dispatcher(environ):
         package = 'torrent'
     elif path.startswith('/about/'):
         package = 'about'
-    elif len(path.split('/')) == 1: # At URI root
+    elif len(path.split('/')) == 2: # At URI root
         package = 'root'
     if package is None:
         status, headers, responseBody = errors.error404(environ)

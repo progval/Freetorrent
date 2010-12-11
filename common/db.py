@@ -30,4 +30,15 @@ import os
 import sqlite3
 
 filename = 'freetorrent.db'
+if not os.path.isfile(filename):
+    populateDb = True
+else:
+    populateDb = False
 conn = sqlite3.connect(filename, check_same_thread = False)
+if populateDb:
+    cursor = conn.cursor()
+    cursor.execute("""CREATE TABLE users (
+                   id INTEGER PRIMARY KEY,
+                   name TEXT,
+                   passwdhash TEXT);""")
+    cursor.commit()

@@ -26,39 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import hashlib
-from common import db
-from common.lib.pesto import cookie
+import os
+import sqlite3
 
-def getUserFromCookies(cookies):
-    if not cookies.has_key('uid') or not cookies.has_key('passwdhash'):
-        return User()
-    return User(cookies['uid'].value, cookies['passwdhash'].value)
-
-users = {}
-def User(id=0, passwdhash=None):
-    global users
-    if not users.has_key(id):
-        users.update({id: _User(id, passwdhash)})
-    return users[id]
-class _User:
-    def __init__(self, id, passwdhash):
-        self.__class__.__name__ = 'User'
-        cursor = db.conn.cursor()
-        if passwdhash is not None:
-            cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE id=? AND passwdhash=?""",
-                           (id, passwdhash))
-        else:
-            cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE id=?""",
-                           (id,))
-
-        row = cursor.fetchone()
-        if row is None:
-            self.id = 0
-            self.name = 'anonyme'
-            self.passwdhash = ''
-        else:
-            self.id = id
-            self.name, self.passwdhash = row
+filename = 'freetorrent.db'
+conn = sqlite3.connect(filename, check_same_thread = False)

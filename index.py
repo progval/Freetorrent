@@ -30,25 +30,39 @@ import os
 import sys
 directory = '/'.join(__file__.split('/')[0:-1])
 sys.path.append(directory)
+os.chdir(directory)
 
 for package in ['common', 'torrent', 'forum', 'about', 'root']:
     reload(__import__(package))
 
 from common import errors
-from common.lib.pesto import cookie
+from common.lib.pesto import cookie as cookielib
 from common import user
 
+DEBUG = True
+
 def application(environ, start_response):
+    if DEBUG:
+        from cStringIO import StringIO
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
     status = '200 OK'
     if environ.has_key('HTTP_COOKIE'):
-        cookies = cookie.parse_cookie_header(environ['HTTP_COOKIE'])
+        cookies = cookielib.parse_cookie_header(environ['HTTP_COOKIE'])
     else:
         cookies = []
-    environ.update({'cookies': cookies})
+    environ.update({'cookies': {}})
+    for cookie in cookies:
+        environ['cookies'].update({cookie.name: cookie})
+    environ.update({'user': user.getUserFromCookies(environ['cookies'])})
     try:
         status, headers, responseBody = dispatcher(environ)
     except Exception as e:
         status, headers, responseBody = errors.error500(environ, e)
+    if DEBUG:
+        sys.stdout.seek(0)
+        sys.stderr.seek(0)
+        responseBody += sys.stdout.read() + sys.stderr.read()
     keys = []
     for header, value in headers:
         keys += [header]

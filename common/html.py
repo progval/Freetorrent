@@ -26,6 +26,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import copy
+from common import user
+
 head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
@@ -39,30 +42,44 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
     </div>
     <table id="menu">
         <tr>
+            %(username)s
             %(menu)s
         </tr>
     </table>
 """
-menu = {'home': 'Accueil', 'browse': 'Catalogue', 'forum': 'Forum',
-        'about': 'À propos'}
+menuTemplate = [('home', 'Accueil'), ('browse', 'Catalogue'),
+        ('forum', 'Forum'), ('about', 'À propos')]
 def getHead(**kwargs):
-    global head, menu
+    global menuTemplate
+    menu = copy.deepcopy(menuTemplate)
     if kwargs.has_key('menu'):
-        menu.update(kwargs['menu'])
+        menu += kwargs['menu']
     params = kwargs
     if not params.has_key('title'):
         params.update({'title': 'Freetorrent'})
     else:
         params['title'] += ' - Freetorrent'
+    if not params.has_key('uid'):
+        uid = 0
+    else:
+        uid = params['uid']
+    currentUser = user.User(uid)
+    username = '<td>%s</td>' % currentUser.name
+    if currentUser.id == 0:
+        menu += [('connect', 'Connexion')]
+    else:
+        menu += [('disconnect', 'Déconnexion')]
     strMenu = ''
-    for key in menu:
+    for key, value in menu:
         strMenu += """
                     <td>
                         <a href="/%s/">
                             <img src="/static/%s.png" alt="%s" title="%s" />
+                            <br />
+                            %s
                         </a>
-                    </td>""" % (key, key, menu[key], menu[key])
-    params.update({'menu': strMenu})
+                    </td>""" % (key, key, value, value, value)
+    params.update({'menu': strMenu, 'username': username, 'connection': ''})
     return head % params
 
 

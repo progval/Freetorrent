@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 # Copyright (c) 2010, Valentin Lorentz
 # All rights reserved.
 #
@@ -26,9 +28,13 @@
 
 import os
 import sys
-sys.path.append('/'.join(__file__.split('/')[0:-1]))
+directory = '/'.join(__file__.split('/')[0:-1])
+sys.path.append(directory)
 
-import errors
+for package in ['common', 'torrent', 'forum', 'about', 'root']:
+    reload(__import__(package))
+
+from common import errors
 
 def application(environ, start_response):
     status = '200 OK'

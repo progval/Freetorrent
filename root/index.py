@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 # Copyright (c) 2010, Valentin Lorentz
 # All rights reserved.
 #
@@ -23,3 +25,16 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from common import html
+
+def run(environ):
+    status = '404 Not Found'
+    headers = []
+    path = '/'.join(environ['REDIRECT_URL'].split('/')[1:])
+    if path == '':
+        status = '200 OK'
+        responseBody = html.getHead(title='Accueil')
+        responseBody += '<p id="body">Bienvenue sur Freetorrent.fr</p>'
+        responseBody += html.getFoot()
+    return status, headers, responseBody

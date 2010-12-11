@@ -2,6 +2,7 @@
   RewriteEngine on
   RewriteBase /
   RewriteCond %{REQUEST_URI} !^/index.py
+  RewriteCond %{REQUEST_URI} !^/static/
   RewriteRule ^(.*)$ index.py/$1 [PT]
 </IfModule>
 

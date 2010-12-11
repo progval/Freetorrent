@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 # Copyright (c) 2010, Valentin Lorentz
 # All rights reserved.
 #
@@ -24,5 +26,46 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-def getHead():
-    pass
+head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' + \
+""""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+    <title>%(title)s</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+    <div id="header">
+        <img src="/static/logo.png" alt="logo" />
+    </div>
+    <table id="menu">
+        <tr>
+            %(menu)s
+        </tr>
+    </table>
+"""
+menu = {'home': 'Accueil', 'browse': 'Catalogue', 'forum': 'Forum',
+        'about': 'À propos'}
+def getHead(**kwargs):
+    global head, menu
+    if kwargs.has_key('menu'):
+        menu.update(kwargs['menu'])
+    params = kwargs
+    if not params.has_key('title'):
+        params.update({'title': 'Freetorrent'})
+    else:
+        params['title'] += ' - Freetorrent'
+    strMenu = ''
+    for key in menu:
+        strMenu += ('<td><img src="/static/%s.png" alt="%s" title="%s" />'
+                   '</td>') % (key, menu[key], menu[key])
+    params.update({'menu': strMenu})
+    return head % params
+
+
+foot = """</body>
+</html>
+"""
+def getFoot(**kwargs):
+    global foot
+    return foot
+

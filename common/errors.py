@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 # Copyright (c) 2010, Valentin Lorentz
 # All rights reserved.
 #
@@ -24,6 +26,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
+import traceback
+from cStringIO import StringIO
+
 def error404(environ):
     status = '404 Not Found'
     headers = []
@@ -33,5 +39,10 @@ def error404(environ):
 def error500(environ, e):
     status = '500 Internal Server Error'
     headers = []
-    responseBody = '<h1>Internal Error</h1>' + repr(e)
+    responseBody = '<h1>Internal Error</h1>'
+    responseBody += '<h2>%s</h2>' % e.__class__.__name__
+    exceptionTraceback = StringIO()
+    traceback.print_exc(file=exceptionTraceback)
+    exceptionTraceback.seek(0)
+    responseBody += '<pre>%s</pre>' % exceptionTraceback.read()
     return  status, headers, responseBody

@@ -35,9 +35,16 @@ for package in ['common', 'torrent', 'forum', 'about', 'root']:
     reload(__import__(package))
 
 from common import errors
+from common.lib.pesto import cookie
+from common import user
 
 def application(environ, start_response):
     status = '200 OK'
+    if environ.has_key('HTTP_COOKIE'):
+        cookies = cookie.parse_cookie_header(environ['HTTP_COOKIE'])
+    else:
+        cookies = []
+    environ.update({'cookies': cookies})
     try:
         status, headers, responseBody = dispatcher(environ)
     except Exception as e:

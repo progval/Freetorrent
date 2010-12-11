@@ -13,6 +13,10 @@ body {
 	background-color: #EEEEFF;
 }
 
+a img {
+	border: 0;
+}
+
 #header {
 	width: 100%;
 	background-color: #BBBBFF;

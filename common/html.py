@@ -26,8 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' + \
-""""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
     <title>%(title)s</title>
@@ -36,6 +35,7 @@ head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' + \
 <body>
     <div id="header">
         <img src="/static/logo.png" alt="logo" />
+        <link rel="stylesheet" media="screen" type="text/css" title="Design" href="/static/design.css" />
     </div>
     <table id="menu">
         <tr>
@@ -62,7 +62,12 @@ def getHead(**kwargs):
     return head % params
 
 
-foot = """</body>
+foot = """
+    <p id="footer">
+        Site conçu par <a href="mailto:progval@gmail.com">ProgVal</a> et
+        disponible sous licence BSD.
+    </p>
+</body>
 </html>
 """
 def getFoot(**kwargs):

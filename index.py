@@ -29,7 +29,9 @@
 import os
 import sys
 directory = '/'.join(__file__.split('/')[0:-1])
+sys.path.reverse()
 sys.path.append(directory)
+sys.path.reverse()
 os.chdir(directory)
 
 from common import exceptions

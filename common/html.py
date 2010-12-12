@@ -48,8 +48,9 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
     </table>
     <div id="body">
 """
-menuTemplate = [('root', '/', 'Accueil'),('catalog', '/browse/', 'Catalogue'),
-        ('forum', '/forum/', 'Forum'), ('about', '/apropos/', 'À propos')]
+menuTemplate = [('root', '/', 'Accueil'),('catalog', '/torrents/', 'Catalogue'),
+        ('upload', '/upload', 'Upload'), ('forum', '/forum/', 'Forum'),
+        ('about', '/apropos/', 'À propos')]
 def getHead(**kwargs):
     global menuTemplate
     menu = copy.deepcopy(menuTemplate)

@@ -75,22 +75,25 @@ def application(environ, start_response):
 
 def dispatcher(environ):
     path = environ['REDIRECT_URL']
-    package = None
+    module = None
     status = None
     if path.startswith('/forum/'):
-        package = 'forum'
-    elif path.startswith('/browse/'):
-        package = 'torrent'
+        module = 'forum.index'
+    elif path.startswith('/torrents/'):
+        module = 'torrents.browse'
     elif path.startswith('/about/'):
-        package = 'about'
-    elif path.startswith('/disconnect/') or path.startswith('/connect/') or \
-            path.startswith('/user/'):
-        package = 'user'
-    elif len(path.split('/')) == 2: # At URI root
-        package = 'root'
-    if package is None:
+        module = 'about.index'
+    elif path.startswith('/disconnect/'):
+        module = 'user.disconnect'
+    elif path.startswith('/connect/'):
+        module = 'user.connect'
+    elif path.startswith('/user/'):
+        module = 'user.index'
+    elif path == '/':
+        module = 'root.index'
+    if module is None:
         status, headers, responseBody = errors.error404(environ)
     else:
-        package = __import__(package + '.index')
-        status, headers, responseBody = package.index.run(environ)
+        module = __import__(module)
+        status, headers, responseBody = module.index.run(environ)
     return status, headers, responseBody

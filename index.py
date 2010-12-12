@@ -71,30 +71,24 @@ def application(environ, start_response):
     return [responseBody]
 
 def dispatcher(environ):
-    path = environ['REDIRECT_URL']
+    uri = environ['REDIRECT_URL']
     module = None
     status = None
-    if path.startswith('/forum/'):
-        module = 'forum.index'
-    elif path.startswith('/torrents/'):
-        module = 'torrents.browse'
-    elif path.startswith('/upload/'):
-        module = 'torrents.upload'
-    elif path.startswith('/about/'):
-        module = 'about.index'
-    elif path.startswith('/disconnect/'):
-        module = 'user.disconnect'
-    elif path.startswith('/connect/'):
-        module = 'user.connect'
-    elif path.startswith('/register/'):
-        module = 'user.register'
-    elif path.startswith('/user/'):
-        module = 'user.index'
-    elif path == '/':
-        module = 'root.index'
+    pathToModule = [('/forum/', 'forum.index'),
+                    ('/torrents/', 'torrents.browse'),
+                    ('/upload/', 'torrents.upload'),
+                    ('/about/', 'about.index'),
+                    ('/disconnect/', 'user.disconnect'),
+                    ('/connect/', 'user.connect'),
+                    ('/register/', 'user.register'),
+                    ('/user/', 'user.index'),
+                    ('/', 'root.index')]
+    for path, module in pathToModule:
+        if uri.startswith(path):
+            break
     if module is None:
         status, headers, responseBody = errors.error404(environ)
     else:
-        module = __import__(module)
-        status, headers, responseBody = module.index.run(environ)
+        module = getattr(__import__(module), '.'.join(module.split('.')[1:]))
+        status, headers, responseBody = module.run(environ)
     return status, headers, responseBody

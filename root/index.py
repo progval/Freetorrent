@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from common import errors
 from common import html
 
 def run(environ):
@@ -37,4 +38,6 @@ def run(environ):
         responseBody = html.getHead(title='Accueil')
         responseBody += 'Bienvenue sur Freetorrent.fr'
         responseBody += html.getFoot()
-    return status, headers, responseBody
+        return status, headers, responseBody
+    else:
+        return errors.error404(environ)

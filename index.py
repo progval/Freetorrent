@@ -81,6 +81,8 @@ def dispatcher(environ):
         module = 'forum.index'
     elif path.startswith('/torrents/'):
         module = 'torrents.browse'
+    elif path.startswith('/upload/'):
+        module = 'torrents.upload'
     elif path.startswith('/about/'):
         module = 'about.index'
     elif path.startswith('/disconnect/'):

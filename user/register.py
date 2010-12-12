@@ -27,8 +27,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
-import cgi
 import hashlib
+from common.lib import parsers
 from common import db
 from common import html
 from common import exceptions
@@ -75,16 +75,9 @@ def run(environ):
             </table>
         </form>"""
     elif path == 'submit.htm':
-        assert environ['REQUEST_METHOD'].upper() == 'POST'
-        postData = cgi.FieldStorage(
-                fp=environ['wsgi.input'],
-                environ=environ,
-                keep_blank_values=True)
-        assert all((key in postData) for key in
+        data = parsers.http_query(environ, 'POST')
+        assert all((key in data) for key in
                    ('name', 'passwd1', 'passwd2', 'email'))
-        data = {}
-        for key in postData.keys():
-            data.update({key: str(postData[key].value)})
         cursor = db.conn.cursor()
         cursor.execute("SELECT name FROM users WHERE name=?",
                        (data['name'],))

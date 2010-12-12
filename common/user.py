@@ -31,9 +31,9 @@ from common import db
 from common.lib.pesto import cookie
 
 def getUserFromCookies(cookies):
-    if not cookies.has_key('uid') or not cookies.has_key('passwdhash'):
+    if not cookies.has_key('name') or not cookies.has_key('passwdhash'):
         return User()
-    return User(cookies['uid'].value, cookies['passwdhash'].value)
+    return User(cookies['name'].value, cookies['passwdhash'].value)
 
 users = {}
 def User(id=0, passwdhash=None):
@@ -42,23 +42,22 @@ def User(id=0, passwdhash=None):
         users.update({id: _User(id, passwdhash)})
     return users[id]
 class _User:
-    def __init__(self, id, passwdhash):
+    def __init__(self, name, passwdhash):
         self.__class__.__name__ = 'User'
         cursor = db.conn.cursor()
         if passwdhash is not None:
+            ##DB#users
             cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE id=? AND passwdhash=?""",
-                           (id, passwdhash))
+                           WHERE name=? AND passwdhash=?""",
+                           (name, passwdhash))
         else:
             cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE id=?""",
-                           (id,))
+                           WHERE name=?""",
+                           (name,))
 
         row = cursor.fetchone()
         if row is None:
-            self.id = 0
             self.name = 'anonyme'
             self.passwdhash = ''
         else:
-            self.id = id
             self.name, self.passwdhash = row

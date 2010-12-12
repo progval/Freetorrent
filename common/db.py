@@ -37,8 +37,9 @@ else:
 conn = sqlite3.connect(filename, check_same_thread = False)
 if populateDb:
     cursor = conn.cursor()
+    ##DB#users
     cursor.execute("""CREATE TABLE users (
-                   id INTEGER PRIMARY KEY,
                    name TEXT,
-                   passwdhash TEXT);""")
-    cursor.commit()
+                   passwdhash TEXT,
+                   email TEXT);""")
+    conn.commit()

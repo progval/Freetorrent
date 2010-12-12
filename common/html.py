@@ -67,7 +67,7 @@ def getHead(**kwargs):
         uid = params['uid']
     currentUser = user.User(uid)
     username = '<td>%s</td>' % currentUser.name
-    if currentUser.id == 0:
+    if currentUser.name == 'anonyme':
         menu += [('connect', '/connect/', 'Connexion')]
         menu += [('register', '/register/', 'Inscription')]
     else:

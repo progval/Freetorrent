@@ -36,11 +36,11 @@ def getUserFromCookies(cookies):
     return User(cookies['name'].value, cookies['passwdhash'].value)
 
 users = {}
-def User(id=0, passwdhash=None):
+def User(name='anonyme', passwdhash=None):
     global users
-    if not users.has_key(id):
-        users.update({id: _User(id, passwdhash)})
-    return users[id]
+    if not users.has_key(name):
+        users.update({name: _User(name, passwdhash)})
+    return users[name]
 class _User:
     def __init__(self, name, passwdhash):
         self.__class__.__name__ = 'User'

@@ -90,5 +90,6 @@ def dispatcher(environ):
         status, headers, responseBody = errors.error404(environ)
     else:
         module = getattr(__import__(module), '.'.join(module.split('.')[1:]))
+        environ.update({'module_path': uri[len(path):]})
         status, headers, responseBody = module.run(environ)
     return status, headers, responseBody

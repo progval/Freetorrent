@@ -32,8 +32,7 @@ from common import html
 def run(environ):
     status = '404 Not Found'
     headers = []
-    path = '/'.join(environ['REDIRECT_URL'].split('/')[1:])
-    if path == '':
+    if environ['module_path'] == '':
         status = '200 OK'
         responseBody = html.getHead(title='Accueil')
         responseBody += 'Bienvenue sur Freetorrent.fr'

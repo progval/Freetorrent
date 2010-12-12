@@ -68,9 +68,10 @@ def getHead(**kwargs):
     currentUser = user.User(uid)
     username = '<td>%s</td>' % currentUser.name
     if currentUser.id == 0:
-        menu += [('connect', '/user/disconnect', 'Connexion')]
+        menu += [('connect', '/connect/', 'Connexion')]
+        menu += [('register', '/register/', 'Inscription')]
     else:
-        menu += [('disconnect', '/user/disconnect', 'Déconnexion')]
+        menu += [('disconnect', '/disconnect/', 'Déconnexion')]
     strMenu = ''
     for image, link, name in menu:
         strMenu += """

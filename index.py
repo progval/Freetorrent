@@ -32,9 +32,6 @@ directory = '/'.join(__file__.split('/')[0:-1])
 sys.path.append(directory)
 os.chdir(directory)
 
-for package in ['common', 'torrent', 'forum', 'about', 'root']:
-    reload(__import__(package))
-
 from common import errors
 from common.lib.pesto import cookie as cookielib
 from common import user

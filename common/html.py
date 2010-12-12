@@ -34,11 +34,11 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
 <head>
     <title>%(title)s</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" media="screen" type="text/css" title="Design" href="/static/design.css" />
 </head>
 <body>
     <div id="header">
         <img src="/static/logo.png" alt="logo" />
-        <link rel="stylesheet" media="screen" type="text/css" title="Design" href="/static/design.css" />
     </div>
     <table id="menu">
         <tr>

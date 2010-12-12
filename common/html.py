@@ -49,7 +49,7 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
     <div id="body">
 """
 menuTemplate = [('root', '/', 'Accueil'),('catalog', '/torrents/', 'Catalogue'),
-        ('upload', '/upload', 'Upload'), ('forum', '/forum/', 'Forum'),
+        ('upload', '/upload/', 'Upload'), ('forum', '/forum/', 'Forum'),
         ('about', '/apropos/', 'À propos')]
 def getHead(**kwargs):
     global menuTemplate

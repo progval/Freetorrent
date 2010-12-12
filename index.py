@@ -86,6 +86,8 @@ def dispatcher(environ):
         module = 'user.disconnect'
     elif path.startswith('/connect/'):
         module = 'user.connect'
+    elif path.startswith('/register/'):
+        module = 'user.register'
     elif path.startswith('/user/'):
         module = 'user.index'
     elif path == '/':

@@ -28,13 +28,19 @@
 
 import sys
 import traceback
+from common import html
 from cStringIO import StringIO
 
 def error404(environ):
     status = '404 Not Found'
     headers = []
     responseBody = '<h1>Not Found</h1>'
-    return  status, headers, responseBody
+    head, foot = '', ''
+    try:
+        head, foot = (html.getHead(title='Erreur 404'), html.getFoot())
+    except:
+        pass
+    return  status, headers, head + responseBody + foot
 
 def error500(environ, e):
     status = '500 Internal Server Error'
@@ -45,4 +51,9 @@ def error500(environ, e):
     traceback.print_exc(file=exceptionTraceback)
     exceptionTraceback.seek(0)
     responseBody += '<pre>%s</pre>' % exceptionTraceback.read()
-    return  status, headers, responseBody
+    head, foot = '', ''
+    try:
+        head, foot = html.getHead(title='Erreur 500'), html.getFoot()
+    except:
+        pass
+    return  status, headers, head + responseBody + foot

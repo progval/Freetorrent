@@ -76,12 +76,16 @@ def application(environ, start_response):
 def dispatcher(environ):
     path = environ['REDIRECT_URL']
     package = None
+    status = None
     if path.startswith('/forum/'):
         package = 'forum'
     elif path.startswith('/browse/'):
         package = 'torrent'
     elif path.startswith('/about/'):
         package = 'about'
+    elif path.startswith('/disconnect/') or path.startswith('/connect/') or \
+            path.startswith('/user/'):
+        package = 'user'
     elif len(path.split('/')) == 2: # At URI root
         package = 'root'
     if package is None:

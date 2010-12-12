@@ -46,9 +46,10 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
             %(menu)s
         </tr>
     </table>
+    <div id="body">
 """
-menuTemplate = [('home', 'Accueil'), ('browse', 'Catalogue'),
-        ('forum', 'Forum'), ('about', 'À propos')]
+menuTemplate = [('root', '/', 'Accueil'),('catalog', '/browse/', 'Catalogue'),
+        ('forum', '/forum/', 'Forum'), ('about', '/apropos/', 'À propos')]
 def getHead(**kwargs):
     global menuTemplate
     menu = copy.deepcopy(menuTemplate)
@@ -66,24 +67,25 @@ def getHead(**kwargs):
     currentUser = user.User(uid)
     username = '<td>%s</td>' % currentUser.name
     if currentUser.id == 0:
-        menu += [('connect', 'Connexion')]
+        menu += [('connect', '/user/disconnect', 'Connexion')]
     else:
-        menu += [('disconnect', 'Déconnexion')]
+        menu += [('disconnect', '/user/disconnect', 'Déconnexion')]
     strMenu = ''
-    for key, value in menu:
+    for image, link, name in menu:
         strMenu += """
                     <td>
-                        <a href="/%s/">
+                        <a href="%s">
                             <img src="/static/%s.png" alt="%s" title="%s" />
                             <br />
                             %s
                         </a>
-                    </td>""" % (key, key, value, value, value)
+                    </td>""" % (link, image, image, name, name)
     params.update({'menu': strMenu, 'username': username, 'connection': ''})
     return head % params
 
 
 foot = """
+    </div>
     <p id="footer">
         Site conçu par <a href="mailto:progval@gmail.com">ProgVal</a> et
         disponible sous licence BSD.

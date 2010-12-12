@@ -35,6 +35,6 @@ def run(environ):
     if path == '':
         status = '200 OK'
         responseBody = html.getHead(title='Accueil')
-        responseBody += '<p id="body">Bienvenue sur Freetorrent.fr</p>'
+        responseBody += 'Bienvenue sur Freetorrent.fr'
         responseBody += html.getFoot()
     return status, headers, responseBody

@@ -37,7 +37,7 @@ def error404(environ):
     responseBody = '<h1>Not Found</h1>'
     head, foot = '', ''
     try:
-        head, foot = (html.getHead(title='Erreur 404'), html.getFoot())
+        head, foot = (html.getHead(title='Error 404'), html.getFoot())
     except:
         pass
     return  status, headers, head + responseBody + foot
@@ -53,7 +53,7 @@ def error500(environ, e):
     responseBody += '<pre>%s</pre>' % exceptionTraceback.read()
     head, foot = '', ''
     try:
-        head, foot = html.getHead(title='Erreur 500'), html.getFoot()
+        head, foot = html.getHead(title='Error 500'), html.getFoot()
     except:
         pass
     return  status, headers, head + responseBody + foot

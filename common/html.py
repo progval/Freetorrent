@@ -63,11 +63,7 @@ def getHead(**kwargs):
         params.update({'title': 'Freetorrent'})
     else:
         params['title'] += ' - Freetorrent'
-    if not params.has_key('uid'):
-        uid = 0
-    else:
-        uid = params['uid']
-    currentUser = user.User(uid)
+    currentUser = user.currentUser
     if currentUser.name == 'anonyme':
         menu += [('connect', '/connect/', 'Connexion')]
         menu += [('register', '/register/', 'Inscription')]

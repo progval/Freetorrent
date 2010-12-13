@@ -36,20 +36,23 @@ def getUserFromCookies(cookies):
     return User(cookies['name'].value, cookies['passwdhash'].value)
 
 users = {}
-def User(name='anonyme', passwd=''):
+def User(name='anonyme', passwdhash=''):
     global users
+    #DEBUG
+    return _User(name, passwdhash)
     if not users.has_key(name):
-        users.update({name: _User(name, passwd)})
+        users.update({name: _User(name, passwdhash)})
     return users[name]
 class _User:
     def __init__(self, name, passwdhash):
+        global currentUser
         self.__class__.__name__ = 'User'
         cursor = db.conn.cursor()
-        if passwd is not '':
+        if passwdhash != '':
             ##DB#users
             cursor.execute("""SELECT name, passwdhash FROM users
                            WHERE name=? AND passwdhash=?""",
-                           (name, hashlib.sha1(passwd)).hexdigest())
+                           (name, passwdhash))
         else:
             cursor.execute("""SELECT name, passwdhash FROM users
                            WHERE name=?""",
@@ -61,3 +64,6 @@ class _User:
             self.passwdhash = ''
         else:
             self.name, self.passwdhash = row
+            currentUser = self
+
+currentUser = User()

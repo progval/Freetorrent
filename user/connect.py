@@ -25,3 +25,59 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import hashlib
+from common import db
+from common import html
+from common import user
+from common import exceptions
+from common.lib import parsers
+from common.lib.pesto import cookie
+
+def run(environ):
+    status = '200 OK'
+    headers = []
+    responseBody = html.getHead(title='Se connecter')
+    path = environ['module_path']
+    if path == '':
+        responseBody += u"""
+        <form action="submit.htm" method="POST">
+            <table>
+                <tr>
+                    <td><label for="name">Nom :</label></td>
+                    <td><input type="text" id="name" name="name" /></td>
+                </tr>
+                <tr>
+                    <td><label for="passwd">Mot de passe :</label></td>
+                    <td>
+                        <input type="password" id="passwd" name="passwd" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Se connecter" />
+                    </td>
+                </tr>
+            </table>
+        </form>"""
+    elif path == 'submit.htm':
+        data = parsers.http_query(environ, 'POST')
+        assert all((key in data) for key in ('name', 'passwd'))
+        currentUser = user.User(data['name'],
+                                hashlib.sha1(data['passwd']).hexdigest())
+        def getCookie(name, value):
+            return cookie.Cookie(name=name,
+                                 value=value,
+                                 expires=2592000,
+                                 path='/')
+        nameCookie = getCookie('name', currentUser.name)
+        passwdCookie = getCookie('passwdhash', currentUser.passwdhash)
+        headers.append(('Set-Cookie', str(nameCookie)))
+        headers.append(('Set-Cookie', str(passwdCookie)))
+        headers.append(('Location', '/'))
+        status = '302 Found'
+        responseBody += 'Bienvenue %s !' % str(nameCookie.value)
+    else:
+        raise exceptions.Error404()
+    responseBody += html.getFoot()
+    return status, headers, responseBody

@@ -65,6 +65,7 @@ def application(environ, start_response):
         sys.stdout.seek(0)
         sys.stderr.seek(0)
         responseBody += sys.stdout.read() + sys.stderr.read()
+    responseBody = responseBody.encode('utf-8')
     keys = []
     for header, value in headers:
         keys += [header]

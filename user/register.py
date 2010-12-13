@@ -39,10 +39,10 @@ testEmail = re.compile('^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]{2,}\.[a-z]{2,}$')
 def run(environ):
     status = '200 OK'
     headers = []
-    responseBody = html.getHead(title='Créer un compte')
+    responseBody = html.getHead(title=u'Créer un compte')
     path = environ['module_path']
     if path == '':
-        responseBody += """
+        responseBody += u"""
         <form action="submit.htm" method="POST">
             <table>
                 <tr>
@@ -84,31 +84,31 @@ def run(environ):
         row = cursor.fetchone()
         anyError = False
         if row is not None:
-            responseBody += """<p>Il y a déjà un utilisateur ayant ce nom.
+            responseBody += u"""<p>Il y a déjà un utilisateur ayant ce nom.
                                Veuillez en choisir un autre.</p>"""
             anyError = True
         if data['passwd1'] != data['passwd2']:
-            responseBody += """<p>Le mot de passe et sa confirmation ne sont
+            responseBody += u"""<p>Le mot de passe et sa confirmation ne sont
                                pas identiques.</p>"""
             anyError = True
         if not testName.match(data['name']):
-            responseBody += """<p>Le nom d'utilisateur est incorrect.
+            responseBody += u"""<p>Le nom d'utilisateur est incorrect.
                                Taille : de 2 à 36, et ne peux contenir que
                                des caractères alphanumériques, des
                                underscores et des tirets.</p>"""
             anyError = True
         if not testEmail.match(data['email']):
-            responseBody += """<p>L'adresse de courriel est invalide.</p>"""
+            responseBody += u"""<p>L'adresse de courriel est invalide.</p>"""
             anyError = True
 
         if not anyError:
             ##DB#users
             cursor.execute("INSERT INTO users VALUES (?,?,?)", (
                             data['name'],
-                            hashlib.sha1(data['passwd1'].hexdigest()),
+                            hashlib.sha1(data['passwd1']).hexdigest(),
                             data['email']))
             db.conn.commit()
-            responseBody += """Votre compte a été créé."""
+            responseBody += u"""Votre compte a été créé."""
     else:
         raise exceptions.Error404()
 

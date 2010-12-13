@@ -29,7 +29,7 @@
 import copy
 from common import user
 
-head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+head = u"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
     <title>%(title)s</title>
@@ -42,15 +42,17 @@ head = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w
     </div>
     <table id="menu">
         <tr>
-            %(username)s
+            <td>%(username)s</td>
             %(menu)s
         </tr>
     </table>
     <div id="body">
 """
-menuTemplate = [('root', '/', 'Accueil'),('catalog', '/torrents/', 'Catalogue'),
-        ('upload', '/upload/', 'Upload'), ('forum', '/forum/', 'Forum'),
-        ('about', '/apropos/', 'À propos')]
+menuTemplate = [('root', '/', 'Accueil'),
+        ('catalog', '/torrents/', 'Catalogue'),
+        ('upload', '/upload/', 'Upload'),
+        ('forum', '/forum/', 'Forum'),
+        ('about', '/apropos/', u'À propos')]
 def getHead(**kwargs):
     global menuTemplate
     menu = copy.deepcopy(menuTemplate)
@@ -66,15 +68,14 @@ def getHead(**kwargs):
     else:
         uid = params['uid']
     currentUser = user.User(uid)
-    username = '<td>%s</td>' % currentUser.name
     if currentUser.name == 'anonyme':
         menu += [('connect', '/connect/', 'Connexion')]
         menu += [('register', '/register/', 'Inscription')]
     else:
-        menu += [('disconnect', '/disconnect/', 'Déconnexion')]
+        menu += [('disconnect', '/disconnect/', u'Déconnexion')]
     strMenu = ''
     for image, link, name in menu:
-        strMenu += """
+        strMenu += u"""
                     <td>
                         <a href="%s">
                             <img src="/static/%s.png" alt="%s" title="%s" />
@@ -82,11 +83,13 @@ def getHead(**kwargs):
                             %s
                         </a>
                     </td>""" % (link, image, image, name, name)
-    params.update({'menu': strMenu, 'username': username, 'connection': ''})
+    params.update({'menu': strMenu,
+                   'username': unicode(currentUser.name),
+                   'connection': ''})
     return head % params
 
 
-foot = """
+foot = u"""
     </div>
     <p id="footer">
         Site conçu par <a href="mailto:progval@gmail.com">ProgVal</a> et

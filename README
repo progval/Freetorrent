@@ -1,0 +1,52 @@
+Web server
+==========
+
+Software
+--------
+
+I use Apache with mod_wsgi, both from Debian repository (in apache2 package).
+
+Configuration
+-------------
+
+This is a sample configuration you can edit to fit your own needs, available
+under CC-0 licence.
+
+<VirtualHost *:80>
+	ServerName freetorrent
+
+	DocumentRoot /home/progval/workspace/Freetorrent
+	<Directory "/home/progval/workspace/Freetorrent">
+		Options Indexes MultiViews FollowSymLinks +ExecCGI
+		Order allow,deny
+		Allow from all
+	</Directory>
+	<Location />
+		Options Indexes MultiViews FollowSymLinks +ExecCGI
+		SetHandler wsgi-script
+		Order allow,deny
+		Allow from all
+	</Location>
+	<Location '/static'>
+		SetHandler None
+	</Location>
+
+	TransferLog /var/log/apache2/freetorrent.log
+</VirtualHost>
+
+Database
+========
+
+Engine
+------
+
+This software was designed, at the early start, to use SQLite database, but
+MySQL appears to be better for our needs. SQLite might still work, but is
+not supported.
+
+Configuration
+-------------
+
+All configuration is in common/db.py file. As this software is not
+designed to be distributed (but distributed because libre software is
+the Good), there is no real configuration file.

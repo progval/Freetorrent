@@ -27,19 +27,42 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import sqlite3
 
-filename = 'freetorrent.db'
-if not os.path.isfile(filename):
-    populateDb = True
+################################
+# Configuration
+DBTYPE = 'mysql'
+if DBTYPE == 'sqlite':
+    FILENAME = 'freetorrent.db'
+elif DBTYPE == 'mysql':
+    HOST = 'localhost'
+    USER = 'freetorrent'
+    PASSWD = 'torrentlibre'
+    DBNAME = 'freetorrent'
+################################
+
+if DBTYPE == 'sqlite':
+    import sqlite3
+    if not os.path.isfile(filename):
+        populateDb = True
+    else:
+        populateDb = False
+    conn = sqlite3.connect(filename, check_same_thread = False)
+elif DBTYPE == 'mysql':
+    import MySQLdb
+    conn = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWD, db=DBNAME)
+    populateDb = False #FIXME: detect whether database is empty
 else:
-    populateDb = False
-conn = sqlite3.connect(filename, check_same_thread = False)
+    raise Exception('Unknown database type')
 if populateDb:
     cursor = conn.cursor()
     ##DB#users
     cursor.execute("""CREATE TABLE users (
-                   name TEXT,
-                   passwdhash TEXT,
-                   email TEXT);""")
+                   id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                   name VARCHAR(40),
+                   passwdhash VARCHAR(40),
+                   email VARCHAR(40),
+                   avatar VARCHAR(100),
+                   signature TEXT,
+                   pid VARCHAR(32),);""")
+    cursor.close()
     conn.commit()

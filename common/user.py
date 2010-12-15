@@ -26,14 +26,22 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import re
 import hashlib
 from common import db
 from common.lib.pesto import cookie
 
+testName = re.compile('^[a-zA-Z0-9_-]{2,36}$')
+testPasswdhash = re.compile('^[a-f0-9]*$')
+
 def getUserFromCookies(cookies):
+    global currentUser
     if not cookies.has_key('name') or not cookies.has_key('passwdhash'):
-        return User()
-    return User(cookies['name'].value, cookies['passwdhash'].value)
+        user = User()
+    else:
+        user = User(cookies['name'].value, cookies['passwdhash'].value)
+    currentUser = user
+    return user
 
 users = {}
 def User(name='anonyme', passwdhash=''):
@@ -48,15 +56,16 @@ class _User:
         global currentUser
         self.__class__.__name__ = 'User'
         cursor = db.conn.cursor()
+        assert testName.match(name)
+        assert testPasswdhash.match(passwdhash)
         if passwdhash != '':
             ##DB#users
             cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE name=? AND passwdhash=?""",
+                           WHERE name=%s AND passwdhash=%s;""",
                            (name, passwdhash))
         else:
             cursor.execute("""SELECT name, passwdhash FROM users
-                           WHERE name=?""",
-                           (name,))
+                           WHERE name=%s;""", (name,))
 
         row = cursor.fetchone()
         if row is None:
@@ -64,6 +73,3 @@ class _User:
             self.passwdhash = ''
         else:
             self.name, self.passwdhash = row
-            currentUser = self
-
-currentUser = User()

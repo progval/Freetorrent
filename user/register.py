@@ -79,7 +79,7 @@ def run(environ):
         assert all((key in data) for key in
                    ('name', 'passwd1', 'passwd2', 'email'))
         cursor = db.conn.cursor()
-        cursor.execute("SELECT name FROM users WHERE name=?",
+        cursor.execute("SELECT name FROM users WHERE name=%s",
                        (data['name'],))
         row = cursor.fetchone()
         anyError = False
@@ -103,7 +103,8 @@ def run(environ):
 
         if not anyError:
             ##DB#users
-            cursor.execute("INSERT INTO users VALUES (?,?,?)", (
+            cursor.execute("""INSERT INTO users VALUES
+                            (NULL,%s,%s,%s,'','','')""", (
                             data['name'],
                             hashlib.sha1(data['passwd1']).hexdigest(),
                             data['email']))

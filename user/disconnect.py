@@ -25,3 +25,26 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from common import html
+from common import errors
+from common.lib.pesto import cookie
+
+def run(environ):
+    status = '200 OK'
+    headers = []
+    responseBody = html.getHead(title=u'Déconnexion')
+    path = environ['module_path']
+    if path == '':
+        responseBody += u'<p>Vous avez été déconnecté(e)</p>'
+        headers += [('Set-Cookie',
+                     str(cookie.expire_cookie('name', path='/')))]
+        headers += [('Set-Cookie',
+                     str(cookie.expire_cookie('passwdhash', path='/')))]
+        headers.append(('Location', '/'))
+        status = '302 Found'
+        responseBody += u'À bientôt !'
+    else:
+        raise errors.Error404()
+    responseBody += html.getFoot()
+    return status, headers, responseBody

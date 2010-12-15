@@ -64,7 +64,7 @@ def run(environ):
         data = parsers.http_query(environ, 'POST')
         assert all((key in data) for key in ('name', 'passwd'))
         currentUser = user.User(data['name'],
-                                hashlib.sha1(data['passwd']).hexdigest())
+                                hashlib.md5(data['passwd']).hexdigest())
         def getCookie(name, value):
             return cookie.Cookie(name=name,
                                  value=value,

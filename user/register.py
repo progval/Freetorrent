@@ -106,7 +106,7 @@ def run(environ):
             cursor.execute("""INSERT INTO users VALUES
                             (NULL,%s,%s,%s,'','','')""", (
                             data['name'],
-                            hashlib.sha1(data['passwd1']).hexdigest(),
+                            hashlib.md5(data['passwd1']).hexdigest(),
                             data['email']))
             db.conn.commit()
             responseBody += u"""Votre compte a été créé."""

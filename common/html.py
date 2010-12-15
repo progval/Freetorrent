@@ -52,7 +52,7 @@ menuTemplate = [('root', '/', 'Accueil'),
         ('catalog', '/torrents/', 'Catalogue'),
         ('upload', '/upload/', 'Upload'),
         ('forum', '/forum/', 'Forum'),
-        ('about', '/apropos/', u'À propos')]
+        ('about', '/about/', u'À propos')]
 def getHead(**kwargs):
     global menuTemplate
     menu = copy.deepcopy(menuTemplate)

@@ -25,3 +25,33 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from common import html
+
+body = u"""
+<h1>À propos de Freetorrent</h1>
+<h2>Ce que Freetorrent est</h2>
+<p>Freetorrent est un projet et une communauté basés sur le logiciel et les
+contenus libres, et qui les promouvoient. Les contenus ainsi partagés sont
+sous licence libre.</p>
+
+<h2>Ce que Freetorrent n'est pas</h2>
+<p>Freetorrent n'est pas un site d'utilisation illégale du protocole
+BitTorrent, puisque les contenus partagés <strong>doivent</strong> être sous
+licence libre.</p>
+
+<h2>Freetorrent est libre</h2>
+<p>Les technologies utilisées par Freetorrent sont libres. Freetorrent
+utilise des bases de données MySQL et SQLite et le langage de programmation
+Python, le tout hébergé sur un serveur Debian GNU/Linux.
+Le code de Freetorrent est sous licence libre BSD trois clauses.</p>
+"""
+
+def run(environ):
+    global body
+    status = '200 OK'
+    headers = []
+    responseBody = html.getHead(title=u'À propos')
+    responseBody += body
+    responseBody += html.getFoot()
+    return status, headers, responseBody

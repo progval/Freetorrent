@@ -54,7 +54,7 @@ def application(environ, start_response):
     environ.update({'cookies': {}})
     for cookie in cookies:
         environ['cookies'].update({cookie.name: cookie})
-    environ.update({'user': user.getUserFromCookies(environ['cookies'])})
+    user.getUserFromCookies(environ['cookies'])
     try:
         status, headers, responseBody = dispatcher(environ)
     except exceptions.Error404:

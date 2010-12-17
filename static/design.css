@@ -51,3 +51,10 @@ a img {
 #footer a:hover, #footer a:focus {
 	text-decoration: underline;
 }
+
+.forumslist {
+	width: 100%;
+}
+.forumslist tr td, .forumslist tr th {
+	border: solid 1px black;
+}

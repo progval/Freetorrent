@@ -33,7 +33,10 @@ body = u"""
 <h2>Ce que Freetorrent est</h2>
 <p>Freetorrent est un projet et une communauté basés sur le logiciel et les
 contenus libres, et qui les promouvoient. Les contenus ainsi partagés sont
-sous licence libre.</p>
+sous licence libre.<br />
+Toujours dans cet esprit de liberté et d'ouverte, le code HTML généré par
+Freetorrent est respectueux des normes du W3C est est conçu pour fonctionner
+au mieux avec des systèmes de lecture de page.</p>
 
 <h2>Ce que Freetorrent n'est pas</h2>
 <p>Freetorrent n'est pas un site d'utilisation illégale du protocole

@@ -52,9 +52,23 @@ a img {
 	text-decoration: underline;
 }
 
-.forumslist, .topicslist {
+.forumslist {
 	width: 100%;
 }
-.forumslist tr td, .forumslist tr th, .topicslist tr td, .topicslist tr th {
+.forumslist tr td, .forumslist tr th {
+	border: solid 1px black;
+}
+
+.topicslist {
+	width: 100%;
+}
+.topicslist tr td, .topicslist tr th {
+	border: solid 1px black;
+}
+
+.topic {
+	width: 100%;
+}
+.topic tr th, .topic tr td {
 	border: solid 1px black;
 }

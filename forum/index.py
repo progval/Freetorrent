@@ -30,12 +30,13 @@ import re
 from common import db
 from common import html
 from common import user
+from common import render
 from common import exceptions
 from unidecode import unidecode
 
 availableChars = '[a-zA-Z0-9_-]+'
 forumMatch = re.compile('^%s-(?P<f_id>[0-9]+)/$' % availableChars)
-topicMatch = re.compile('^%s/-(?P<f_id>[0-9]+)%s/-(?P<t_id>[0-9]+)$' % \
+topicMatch = re.compile('^%s-(?P<f_id>[0-9]+)/%s-(?P<t_id>[0-9]+)/$' % \
                         (availableChars, availableChars))
 
 forumsListTemplate = u"""<table class="forumslist">
@@ -80,6 +81,25 @@ lastTopicMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
     par %(user_name)s
 </a>"""
 
+topicBodyTemplate = u"""
+<h2>%s</h2>
+<table class="topic">
+    <tr>
+        <th>Auteur</th>
+        <th>Message</th>
+    </tr>
+    %s
+</table>"""
+messageRowTemplate = u"""
+<tr>
+    <td class="author">
+        <a href="%(user_url)s">%(user_name)s</a><br />
+        %(avatar)s
+    </td>
+    <td class="message">
+        %(message_content)s
+    </td>
+</tr>"""
 
 def addForumPrefix(function):
     def decorate(*args, **kwargs):
@@ -193,7 +213,8 @@ def run(environ):
         f_id = parsed.group('f_id')
         forum = db.conn.cursor()
         forum.execute("SELECT name FROM forums WHERE f_id = %s", f_id)
-        assert forum.rowcount == 1
+        if forum.rowcount < 1:
+            raise exceptions.Error404()
         forum = forum.fetchone()
         responseBody = html.getHead(title=u"%s (forum)" % forum[0])
         topicRows = u''
@@ -237,5 +258,36 @@ def run(environ):
         responseBody += topicsListTemplate % (forum[0], topicRows)
         responseBody += html.getFoot()
         return status, headers, responseBody
-
+    parsed = topicMatch.match(path)
+    if parsed is not None:
+        f_id = parsed.group('f_id')
+        t_id = parsed.group('t_id')
+        topic = db.conn.cursor()
+        topic.execute("SELECT title FROM topics WHERE t_id=%s", (t_id,))
+        if topic.rowcount == 0:
+            raise exceptions.Error404()
+        topic = topic.fetchone()
+        messages = db.conn.cursor()
+        messages.execute("""
+                SELECT m_id, content, time, users.u_id, users.name, avatar
+                FROM messages
+                INNER JOIN users USING (u_id)
+                WHERE t_id=%s""", (t_id,))
+        responseBody = html.getHead(title=u"%s (sujet)" % topic[0])
+        messageRows = u''
+        for message in messages:
+            def getAvatarHtml(avatarUrl):
+                if avatarUrl != '':
+                    return '<img src="%s" alt="avatar" />' % avatarUrl
+                else:
+                    return ''
+            messageRow = messageRowTemplate % \
+                    {'user_url': '/users/%s/' % message[4],
+                    'user_name': message[4],
+                    'avatar': getAvatarHtml(message[5]),
+                    'message_content': render.forum(message[1])}
+            messageRows += messageRow
+        responseBody += topicBodyTemplate % (topic[0], messageRows)
+        responseBody += html.getFoot()
+        return status, headers, responseBody
     raise exceptions.Error404()

@@ -55,9 +55,31 @@ forumRowTemplate = u"""<tr>
     <td class="counts">%(topics)s/%(posts)s</td>
     <td class="lastmessage">%(lastmessage)s</td>
 </tr>"""
-lastMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
-    %(topic_name)s par %(user_name)
+lastForumMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
+    %(topic_name)s par %(user_name)s
 </a>"""
+
+topicsListTemplate = u"""
+<h2>%s</h2>
+<table class="topicslist">
+    <tr>
+        <th>Nouveaux messages</th>
+        <th>Nom</th>
+        <th>Messages</th>
+        <th>Dernier message</th>
+    </th>
+    %s
+</table>"""
+topicRowTemplate = u"""<tr>
+    <td class="%(newmsg_prefix)snewmsg">%(newmsg)s</td>
+    <td class="name"><a href="%(url)s">%(topic_name)s</a></td>
+    <td class="count">%(posts)s</td>
+    <td class="lastmessage">%(lastmessage)s</td>
+</tr>"""
+lastTopicMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
+    par %(user_name)s
+</a>"""
+
 
 def addForumPrefix(function):
     def decorate(*args, **kwargs):
@@ -67,7 +89,7 @@ def addForumPrefix(function):
 @addForumPrefix
 def getTopicUrl(t_id):
     cursor = db.conn.cursor()
-    cursor.execute("""SELECT forums.name, topics.title, f_id, t_id
+    cursor.execute("""SELECT forums.name, topics.title, forums.f_id, t_id
             FROM topics, forums
             WHERE topics.f_id=forums.f_id and t_id=%s""", (t_id,))
     assert cursor.rowcount <= 1
@@ -75,7 +97,7 @@ def getTopicUrl(t_id):
         return '/forums/'
     else:
         row = cursor.fetchone()
-        return '/%s-%i/%s-%i' % (unidecode(row[0]).replace(' ', '_'),
+        return '/%s-%i/%s-%i/' % (unidecode(row[0]).replace(' ', '_'),
                                  row[2],
                                  unidecode(row[1]).replace(' ', '_'),
                                  row[3])
@@ -130,13 +152,13 @@ def run(environ):
                     WHERE f_id=%s
                         AND topics.t_id=messages.t_id
                         AND users.u_id=messages.u_id
-                    ORDER BY messages.time
+                    ORDER BY messages.time DESC
                     LIMIT 0,1;""", (forum[0],))
             lastMessage = lastMessage.fetchone()
             if lastMessage is None:
                 lastMessage = 'aucun'
             else:
-                lastMessage = lastMessageTemplate % \
+                lastMessage = lastForumMessageTemplate % \
                         {'url': getTopicUrl(lastMessage[1]),
                         'msg_id': lastMessage[0],
                         'topic_name': lastMessage[2],
@@ -165,6 +187,55 @@ def run(environ):
             forumRows += forumRow
         responseBody += forumsListTemplate % forumRows
         responseBody += html.getFoot()
-    else:
-        raise exceptions.Error404()
-    return status, headers, responseBody
+        return status, headers, responseBody
+    parsed = forumMatch.match(path)
+    if parsed is not None:
+        f_id = parsed.group('f_id')
+        forum = db.conn.cursor()
+        forum.execute("SELECT name FROM forums WHERE f_id = %s", f_id)
+        assert forum.rowcount == 1
+        forum = forum.fetchone()
+        responseBody = html.getHead(title=u"%s (forum)" % forum[0])
+        topicRows = u''
+        topics = db.conn.cursor()
+        topics.execute("SELECT t_id, title FROM topics WHERE f_id=1")
+        for topic in topics:
+            lastMessage = db.conn.cursor()
+            lastMessage.execute("""SELECT messages.m_id, users.name
+                    FROM messages, users
+                    WHERE t_id=%s
+                        AND users.u_id=messages.u_id
+                    ORDER BY messages.time DESC
+                    LIMIT 0,1;""", (topic[0],))
+            lastMessage = lastMessage.fetchone()
+            if lastMessage is None:
+                lastMessage = 'aucun'
+            else:
+                lastMessage = lastTopicMessageTemplate % \
+                        {'url': getTopicUrl(topic[0]),
+                        'msg_id': lastMessage[0],
+                        'user_name': lastMessage[1]}
+            notRead = db.conn.cursor()
+            notRead.execute("""SELECT COUNT(*) FROM last_read
+                    INNER JOIN messages USING (t_id)
+                    WHERE t_id=%s AND last_read.time<messages.time
+                        AND last_read.u_id=%s""",
+                             (forum[0], user.currentUser.id))
+            notRead = notRead.fetchone()[0]
+            if notRead == 0:
+                prefix = 'no'
+            else:
+                prefix = ''
+            topicRow = topicRowTemplate % \
+                    {'newmsg_prefix': prefix,
+                    'newmsg': notRead,
+                    'url': getTopicUrl(topic[0]),
+                    'topic_name': topic[1],
+                    'posts': getTopicPostsCount(topic[0]),
+                    'lastmessage': lastMessage}
+            topicRows += topicRow
+        responseBody += topicsListTemplate % (forum[0], topicRows)
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+
+    raise exceptions.Error404()

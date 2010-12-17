@@ -60,16 +60,17 @@ class _User:
         assert testPasswdhash.match(passwdhash)
         if passwdhash != '':
             ##DB#users
-            cursor.execute("""SELECT name, passwdhash FROM users
+            cursor.execute("""SELECT u_id, name, passwdhash FROM users
                            WHERE name=%s AND passwdhash=%s;""",
                            (name, passwdhash))
         else:
-            cursor.execute("""SELECT name, passwdhash FROM users
+            cursor.execute("""SELECT u_id, name, passwdhash FROM users
                            WHERE name=%s;""", (name,))
 
         row = cursor.fetchone()
         if row is None:
             self.name = 'anonyme'
             self.passwdhash = ''
+            self.passwdhash = 0
         else:
-            self.name, self.passwdhash = row
+            self.id, self.name, self.passwdhash = row

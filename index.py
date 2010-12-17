@@ -63,7 +63,6 @@ def application(environ, start_response):
         status, headers, responseBody = errors.error500(environ, e)
     if DEBUG:
         sys.stdout.seek(0)
-        sys.stderr.seek(0)
         responseBody += sys.stdout.read() + sys.stderr.read()
     responseBody = responseBody.encode('utf-8')
     keys = []

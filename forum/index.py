@@ -97,6 +97,7 @@ messageRowTemplate = u"""
         %(avatar)s
     </td>
     <td class="message">
+        <a name="msg%(id)s"></a>
         %(message_content)s
     </td>
 </tr>"""
@@ -285,7 +286,8 @@ def run(environ):
                     {'user_url': '/users/%s/' % message[4],
                     'user_name': message[4],
                     'avatar': getAvatarHtml(message[5]),
-                    'message_content': render.forum(message[1])}
+                    'message_content': render.forum(message[1]),
+                    'id': message[0]}
             messageRows += messageRow
         responseBody += topicBodyTemplate % (topic[0], messageRows)
         responseBody += html.getFoot()

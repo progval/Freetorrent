@@ -26,7 +26,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from postmarkup import render_bbcode
+import postmarkup
+myPostmarkup = postmarkup.create(use_pygments=True)
 
-def forum(content):
-    return render_bbcode(content)
+def forum(text):
+    return myPostmarkup(text)

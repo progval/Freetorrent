@@ -34,7 +34,8 @@ head = u"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.
 <head>
     <title>%(title)s</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" media="screen" type="text/css" title="Design" href="/static/design.css" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/static/design.css" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/static/code.css" />
 </head>
 <body>
     <div id="header">

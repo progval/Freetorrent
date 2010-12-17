@@ -49,7 +49,8 @@ if DBTYPE == 'sqlite':
     conn = sqlite3.connect(filename, check_same_thread = False)
 elif DBTYPE == 'mysql':
     import MySQLdb
-    conn = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWD, db=DBNAME)
+    conn = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWD, db=DBNAME,
+                           use_unicode="True", charset="utf8")
     populateDb = False #FIXME: detect whether database is empty
 else:
     raise Exception('Unknown database type')

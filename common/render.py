@@ -27,7 +27,14 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import postmarkup
+from unidecode import unidecode
+
+
 myPostmarkup = postmarkup.create(use_pygments=True)
 
 def forum(text):
     return myPostmarkup(text)
+
+urlAvailableChars = '[a-zA-Z0-9_-]+'
+def getUrlPrettyName(name):
+    return unidecode(name).replace(' ', '_')

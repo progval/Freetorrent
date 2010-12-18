@@ -32,12 +32,10 @@ from common import html
 from common import user
 from common import render
 from common import exceptions
-from unidecode import unidecode
 
-availableChars = '[a-zA-Z0-9_-]+'
-forumMatch = re.compile('^%s-(?P<f_id>[0-9]+)/$' % availableChars)
+forumMatch = re.compile('^%s-(?P<f_id>[0-9]+)/$' % render.urlAvailableChars)
 topicMatch = re.compile('^%s-(?P<f_id>[0-9]+)/%s-(?P<t_id>[0-9]+)/$' % \
-                        (availableChars, availableChars))
+                        (render.urlAvailableChars, render.urlAvailableChars))
 
 forumsListTemplate = u"""<table class="forumslist">
     <tr>
@@ -118,9 +116,9 @@ def getTopicUrl(t_id):
         return '/forums/'
     else:
         row = cursor.fetchone()
-        return '/%s-%i/%s-%i/' % (unidecode(row[0]).replace(' ', '_'),
+        return '/%s-%i/%s-%i/' % (render.getUrlPrettyName(row[0]),
                                  row[2],
-                                 unidecode(row[1]).replace(' ', '_'),
+                                 render.getUrlPrettyName(row[1]),
                                  row[3])
 
 @addForumPrefix
@@ -133,7 +131,7 @@ def getForumUrl(f_id):
         return '/forums/'
     else:
         row = cursor.fetchone()
-        return '/%s-%i/' % (unidecode(row[0]).replace(' ', '_'),
+        return '/%s-%i/' % (render.getUrlPrettyName(row[0]),
                             row[1])
 
 def getForumTopicsCount(f_id):

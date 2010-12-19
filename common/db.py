@@ -39,3 +39,6 @@ DBNAME = 'freetorrent'
 import MySQLdb
 conn = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWD, db=DBNAME,
                        use_unicode="True", charset="utf8")
+
+import sqlite3
+cache = sqlite3.connect(':memory:')

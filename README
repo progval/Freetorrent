@@ -51,8 +51,12 @@ All configuration is in common/db.py file. As this software is not
 designed to be distributed (but distributed because libre software is
 the Good), there is no real configuration file.
 
-Other softwares
-===============
+Required softwares
+==================
+
+This software are not embedded in Freetorrent source, either because they
+are enough famous to be package, or because they are easily installable,
+or because of licensing issue.
 
 Postmarkup
 ----------
@@ -76,3 +80,23 @@ characters is Unidecode (Perl license). It can be found at
 http://pypi.python.org/pypi/Unidecode. note that the
 libtext-unidecode-perl Debian package is for Perl and not for Python, so
 it is not compatible.
+
+Library embedded in Freetorrent source
+======================================
+
+The fellowing software are embedded in Freetorrent source, either because they
+are not installable, or Freetorrent doesn't need all the library, or they must
+be edited.
+
+Pesto
+-----
+
+The Cookie lib of Pesto library is used for cookies handling, and is
+embedded in Freetorrent source (common/lib/pesto/cookie.py)
+
+HunnyB
+------
+
+This library provides Bencode encoder/decoder and is avaiblable under MIT
+license.
+Two lines has been removed, to disable unwanted exception raising.

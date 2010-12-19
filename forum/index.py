@@ -32,12 +32,18 @@ from common import html
 from common import user
 from common import render
 from common import exceptions
+from common.lib import parsers
 
 forumMatch = re.compile('^%s-(?P<f_id>[0-9]+)/$' % render.urlAvailableChars)
 topicMatch = re.compile('^%s-(?P<f_id>[0-9]+)/%s-(?P<t_id>[0-9]+)/$' % \
                         (render.urlAvailableChars, render.urlAvailableChars))
+newTopicMatch = re.compile('^%s-(?P<f_id>[0-9]+)/new/.*$' %
+                           render.urlAvailableChars)
+newMessageMatch=re.compile('^%s-(?P<f_id>[0-9]+)/%s-(?P<t_id>[0-9]+)/reply/.*$'\
+                        % (render.urlAvailableChars, render.urlAvailableChars))
 
-forumsListTemplate = u"""<table class="forumslist">
+forumsListTemplate = u"""
+<table class="forumslist">
     <tr>
         <th>Nouveaux messages</th>
         <th>Nom & description</th>
@@ -60,6 +66,9 @@ lastForumMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
 
 topicsListTemplate = u"""
 <h2>%s</h2>
+<form action="new/" method="get">
+    <input type="submit" value="Nouveau sujet" />
+</form>
 <table class="topicslist">
     <tr>
         <th>Nouveaux messages</th>
@@ -81,6 +90,9 @@ lastTopicMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
 
 topicBodyTemplate = u"""
 <h2>%s</h2>
+<form action="reply/" method="get">
+    <input type="submit" value="Répondre" />
+</form>
 <table class="topic">
     <tr>
         <th>Auteur</th>
@@ -99,6 +111,40 @@ messageRowTemplate = u"""
         %(message_content)s
     </td>
 </tr>"""
+
+textarea = u"""
+<label for="content">Message</label><br />
+<textarea name="content" id="content"></textarea>"""
+newTopicTemplate = u"""
+<form action="submit.htm" method="post">
+    <label for="title">Titre :</label>
+    <input type="title" name="title" id="title" />
+    <br />
+    %s
+    <br />
+    <input type="submit" value="Créer le sujet" />
+</form>""" % textarea
+newMessageTemplate = u"""
+<form action="submit.htm" method="post">
+    %s
+    <br />
+    <input type="submit" value="Répondre" />
+</form>""" % textarea
+
+notAllowedTemplate = u"""
+<p>
+    Désolé, mais vous n'avez pas l'autorisation d'effectuer cette action.
+    <br />
+    Si vous n'êtes pas connecté(e), essayez de vous connecter, ou de vous
+    enregistrer si vous n'avez pas encore de compte.
+</p>"""
+
+failedSubmitionTemplate = u"""
+L'envoi du message a échoué, pour une raison inconnue. Vous pouvez
+récupérer son contenu, pour essayer de l'envoyer à nouveau :
+<pre class="recover_message">
+%(content)s
+</pre>"""
 
 def addForumPrefix(function):
     def decorate(*args, **kwargs):
@@ -171,7 +217,7 @@ def run(environ):
                     WHERE f_id=%s
                         AND topics.t_id=messages.t_id
                         AND users.u_id=messages.u_id
-                    ORDER BY messages.time DESC
+                    ORDER BY messages.last_update DESC
                     LIMIT 0,1;""", (forum[0],))
             lastMessage = lastMessage.fetchone()
             if lastMessage is None:
@@ -186,7 +232,7 @@ def run(environ):
             notRead.execute("""SELECT COUNT(*) FROM last_read
                     INNER JOIN topics USING (t_id)
                     INNER JOIN messages USING (t_id)
-                    WHERE f_id=%s AND last_read.time<messages.time
+                    WHERE f_id=%s AND last_read.time<messages.last_update
                         AND last_read.u_id=%s""",
                              (forum[0], user.currentUser.id))
             notRead = notRead.fetchone()[0]
@@ -225,7 +271,7 @@ def run(environ):
                     FROM messages, users
                     WHERE t_id=%s
                         AND users.u_id=messages.u_id
-                    ORDER BY messages.time DESC
+                    ORDER BY messages.last_update DESC
                     LIMIT 0,1;""", (topic[0],))
             lastMessage = lastMessage.fetchone()
             if lastMessage is None:
@@ -238,7 +284,7 @@ def run(environ):
             notRead = db.conn.cursor()
             notRead.execute("""SELECT COUNT(*) FROM last_read
                     INNER JOIN messages USING (t_id)
-                    WHERE t_id=%s AND last_read.time<messages.time
+                    WHERE t_id=%s AND last_read.time<messages.last_update
                         AND last_read.u_id=%s""",
                              (forum[0], user.currentUser.id))
             notRead = notRead.fetchone()[0]
@@ -268,7 +314,7 @@ def run(environ):
         topic = topic.fetchone()
         messages = db.conn.cursor()
         messages.execute("""
-                SELECT m_id, content, time, users.u_id, users.name, avatar
+                SELECT m_id, content, created_on, users.u_id, users.name, avatar
                 FROM messages
                 INNER JOIN users USING (u_id)
                 WHERE t_id=%s""", (t_id,))
@@ -288,6 +334,64 @@ def run(environ):
                     'id': message[0]}
             messageRows += messageRow
         responseBody += topicBodyTemplate % (topic[0], messageRows)
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+    parsed = newTopicMatch.match(path)
+    if parsed is not None:
+        f_id = parsed.group('f_id')
+        responseBody = html.getHead(title='Nouveau sujet')
+        if user.currentUser.id == 0:
+            responseBody += notAllowedTemplate
+        elif path.endswith('submit.htm'):
+            data = parsers.http_query(environ, 'POST')
+            assert all((key in data) for key in ('title', 'content'))
+            cursor = db.conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM forums WHERE f_id=%s", (f_id,))
+            try:
+                assert cursor.fetchone()[0] == 1
+                cursor.execute("INSERT INTO topics VALUES('', %s, %s)", 
+                               (f_id, data['title']))
+                cursor.execute("""
+                        INSERT INTO messages
+                        VALUES('', %s, %s, %s, CURRENT_TIMESTAMP, '')""",
+                        (cursor.lastrowid,user.currentUser.id,data['content']))
+                responseBody += u"<p>Le sujet a été créé avec succès.</p>"
+                status = '302 Found'
+                headers.append(('Location', '../'))
+            except Exception, e:
+                print repr(e)
+                responseBody += failedSubmitionTemplate % \
+                        {'content': data['content']}
+        else:
+            responseBody += newTopicTemplate
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+    parsed = newMessageMatch.match(path)
+    if parsed is not None:
+        t_id = parsed.group('t_id')
+        responseBody = html.getHead(title=u'Réponse au sujet')
+        if user.currentUser.id == 0:
+            responseBody += notAllowedTemplate
+        elif path.endswith('submit.htm'):
+            data = parsers.http_query(environ, 'POST')
+            assert all((key in data) for key in ('content'))
+            cursor = db.conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM topics WHERE t_id=%s", (f_id,))
+            try:
+                assert cursor.fetchone()[0] == 1
+                cursor.execute("""
+                        INSERT INTO messages
+                        VALUES('', %s, %s, %s, CURRENT_TIMESTAMP, '')""",
+                        (t_id, user.currentUser.id, data['content']))
+                responseBody += u"<p>La réponse a été envoyée avec succès.</p>"
+                status = '302 Found'
+                headers.append(('Location', '../'))
+            except Exception, e:
+                print repr(e)
+                responseBody += failedSubmitionTemplate % \
+                        {'content': data['content']}
+        else:
+            responseBody += newMessageTemplate
         responseBody += html.getFoot()
         return status, headers, responseBody
     raise exceptions.Error404()

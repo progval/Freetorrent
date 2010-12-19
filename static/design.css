@@ -21,6 +21,12 @@ textarea {
 	width: 100%;
 	height: 200px;
 }
+table {
+	width: 100%;
+}
+td, th {
+	border: solid 1px black;
+}
 
 #header {
 	width: 100%;
@@ -35,6 +41,7 @@ textarea {
 	width: 50px;
 	height: 50px;
 	text-align: center;
+	border: 0
 }
 
 #body {
@@ -55,25 +62,4 @@ textarea {
 }
 #footer a:hover, #footer a:focus {
 	text-decoration: underline;
-}
-
-.forumslist {
-	width: 100%;
-}
-.forumslist tr td, .forumslist tr th {
-	border: solid 1px black;
-}
-
-.topicslist {
-	width: 100%;
-}
-.topicslist tr td, .topicslist tr th {
-	border: solid 1px black;
-}
-
-.topic {
-	width: 100%;
-}
-.topic tr th, .topic tr td {
-	border: solid 1px black;
 }

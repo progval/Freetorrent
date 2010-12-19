@@ -1,0 +1,66 @@
+
+===================
+HunnyB (de|en)coder
+===================
+
+Something like "Bencode remixed"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HunnyB implements the `bencode`_ encoding/decoding originally
+created by `Petru Paler`_ for use in the guts of `BitTorrent`_,
+brainchild of `Bram Cohen`_.  
+        
+        >>> import hunnyb
+
+Import of the hunnyb module will register the encode/decode functions 
+with the standard library `codecs`_ module, meaning strings may be 
+encoded in one of the following ways:
+
+        >>> "foobaz hambones".encode('hunnyb')
+        '15:foobaz hambones'
+        
+        >>> "foobaz hambones".encode('hb')
+        '15:foobaz hambones'
+        
+        >>> "foobaz hambones".encode('bencode')
+        '15:foobaz hambones'
+        
+        >>> "foobaz hambones".encode('b')
+        '15:foobaz hambones'
+
+
+Likewise, bencoded strings may be decoded, although the result will always
+be a string (a requirement of `codecs`_), meaning one will have to 
+``eval()`` said result if not of string type.
+
+        >>> enc_str = "ForkingHam BIZZYBONE RazzMATAZZ".encode('hb')
+
+        >>> print enc_str
+        31:ForkingHam BIZZYBONE RazzMATAZZ
+
+        >>> enc_str.decode('hb')
+        'ForkingHam BIZZYBONE RazzMATAZZ'
+
+        >>> enc_dict = hunnyb.encode({'foo': 99000, 0: [99, 8, 'bobob']})
+
+        >>> print enc_dict
+        d1:0li99ei8e5:bobobe3:fooi99000ee
+        
+        >>> enc_dict.decode('bencode')
+        "{'0': [99, 8, 'bobob'], 'foo': 99000}"
+
+
+Alternatively, the ``encode`` and ``decode`` functions available in 
+``hunnyb`` may be used directly, with decoding always returning a 
+given object's Python equivalent.
+
+        >>> hunnyb.decode(enc_dict)
+        {'0': [99, 8, 'bobob'], 'foo': 99000}
+
+
+.. _bencode: http://en.wikipedia.org/wiki/Bencode
+.. _Petru Paler: http://petru.paler.net/
+.. _BitTorrent: http://www.bittorrent.com/what-is-bittorrent
+.. _Bram Cohen: http://en.wikipedia.org/wiki/Bram_Cohen
+.. _codecs: http://docs.python.org/lib/module-codecs.html
+.. vim:filetype=rst

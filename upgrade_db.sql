@@ -7,7 +7,8 @@ ALTER TABLE `torrents`
   DROP `anonymous`,
   DROP `lastsuccess`,
   DROP `torr_passw`,
-  DROP `sub_url`;
+  DROP `sub_url`,
+  DROP `announce_url`;
 
 ALTER TABLE `torrents` CHANGE `filename` `name` VARCHAR( 250 ) 
 CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '';

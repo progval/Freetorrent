@@ -51,7 +51,10 @@ form = u"""
         </tr>
         <tr>
             <td><label for="description">Description :</label></td>
-            <td><textarea name="description" id="description"></textarea></td>
+            <td>
+                <textarea name="description" id="description"
+                          rows="auto" cols="auto"></textarea>
+            </td>
         </tr>
 
         <tr>
@@ -61,7 +64,7 @@ form = u"""
             <td><label for="category">Catégorie :</label></td>
             <td>
                 <select name="category" id="category">
-                    <option value='0' selected>(choisir)</option>
+                    <option value='0' selected="selected">(choisir)</option>
                     %(categories)s
                 </select>
             </td>
@@ -70,7 +73,7 @@ form = u"""
             <td><label for="audio">Format audio :</label></td>
             <td>
                 <select name="audio" id="audio">
-                    <option value='0' selected>
+                    <option value='0' selected="selected">
                         (choisir)
                     </option>
                     <option value='MP3 Low Quality'>
@@ -104,7 +107,7 @@ form = u"""
             <td><label for="video">Format vidéo :</label></td>
             <td>
                 <select name="video" id="video">
-                    <option value='0' selected>(choisir)</option>
+                    <option value='0' selected="selected">(choisir)</option>
                     <option value='mpeg1'>mpeg1</option>
                     <option value='mpeg2'>mpeg2</option>
                     <option value='mpeg4'>mpeg4</option>
@@ -136,6 +139,7 @@ form = u"""
                 <input type="submit" value="Envoyer" />
             </td>
         </tr>
+    </table>
 </form>"""
 
 def run(environ):

@@ -62,12 +62,12 @@ forumRowTemplate = u"""<tr>
 </tr>"""
 lastForumMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
     %(topic_name)s par %(user_name)s
-</a>"""
+<</a>"""
 
 topicsListTemplate = u"""
 <h2>%s</h2>
 <form action="new/" method="get">
-    <input type="submit" value="Nouveau sujet" />
+    <p><input type="submit" value="Nouveau sujet" /></p>
 </form>
 <table class="topicslist">
     <tr>
@@ -75,7 +75,7 @@ topicsListTemplate = u"""
         <th>Nom</th>
         <th>Messages</th>
         <th>Dernier message</th>
-    </th>
+    </tr>
     %s
 </table>"""
 topicRowTemplate = u"""<tr>
@@ -91,7 +91,7 @@ lastTopicMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
 topicBodyTemplate = u"""
 <h2>%s</h2>
 <form action="reply/" method="get">
-    <input type="submit" value="Répondre" />
+    <p><input type="submit" value="Répondre" /></p>
 </form>
 <table class="topic">
     <tr>

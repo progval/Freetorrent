@@ -86,7 +86,7 @@ def dispatcher(environ):
                     ('/disconnect/', 'user.disconnect'),
                     ('/connect/', 'user.connect'),
                     ('/register/', 'user.register'),
-                    ('/user/', 'user.index'),
+                    ('/users/', 'user.index'),
                     ('/', 'root.index')]
     for path, module in pathToModule:
         if uri.startswith(path):

@@ -25,3 +25,80 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import re
+import cgi
+from common import db
+from common import html
+from common import exceptions
+
+searchMatch = re.compile('^search-(?P<from>[0-9]+)-(?P<count>[0-9]+).htm(?P<args>.*)$')
+
+usersListTemplate = u"""
+<table class="users_list">
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Messages</th>
+    </tr>
+    %s
+</table>"""
+usersListRowTemplate = u"""
+<tr>
+    <td class="id">
+        %(id)s
+    </td>
+    <td class="username">
+        <a href="%(name)s">%(name)s</a>
+    </td>
+    <td class="messages">
+        %(messages)s
+    </td>
+</tr>
+"""
+
+def run(environ):
+    status = '200 OK'
+    headers = []
+    path = environ['module_path']
+    if path == '':
+        status = '302 Found'
+        headers.append(('Location', 'search-0-50.htm'))
+        responseBody = html.getHead(title='Redirection')
+        responseBody += u"""<p>Si vous voyez cette page, c'est que votre
+                navigateur ne supporte pas les redirections. Veuillez cliquer
+                sur <a href="list-1-50.htm">ce lien</a> pour voir la liste des
+                utilisateurs.</p>"""
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+    parsed = searchMatch.match(path)
+    if parsed is not None:
+        args = {}
+        if parsed.group('args') != '':
+            assert parsed.group('args')[0] == '?'
+            args = cgi.parse_qsl(parsed.group('args'))
+        sqlQuery = "SELECT u_id, name FROM users WHERE u_id!=0 "
+        sqlArgs = tuple()
+        if args.has_key('orderby'):
+            orderby == args['orderby']
+            assert orderby in ('u_id', 'name')
+            sqlQuery += "ORDER BY %s " % orderby
+            if args.has_key('desc'):
+                sqlQuery += "DESC "
+        sqlQuery += "LIMIT %i, %i" % (int(parsed.group('from')), int(parsed.group('count')))
+        users = db.conn.cursor()
+        users.execute(sqlQuery, sqlArgs)
+        rows = ''
+        for user in users:
+            cursor = db.conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM messages WHERE u_id=%s" % (user[0],))
+            messages = cursor.fetchone()[0]
+            rows += usersListRowTemplate % {'id': user[0],
+                                            'name': user[1],
+                                            'messages': messages}
+        responseBody = html.getHead(title=u"Recherche d'utilisateurs")
+        responseBody += usersListTemplate % rows
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+
+    raise exceptions.Error404()

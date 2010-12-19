@@ -12,9 +12,14 @@ body {
 	border: 0;
 	background-color: #EEEEFF;
 }
-
 a img {
 	border: 0;
+}
+textarea {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 200px;
 }
 
 #header {

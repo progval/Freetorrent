@@ -71,6 +71,6 @@ class _User:
         if row is None:
             self.name = 'anonyme'
             self.passwdhash = ''
-            self.passwdhash = 0
+            self.id = 0
         else:
             self.id, self.name, self.passwdhash = row

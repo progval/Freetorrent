@@ -56,4 +56,4 @@ def error500(environ, e):
         head, foot = html.getHead(title='Error 500'), html.getFoot()
     except:
         pass
-    return  status, headers, head + responseBody + foot
+    return  status, headers, unicode(responseBody, errors='replace')

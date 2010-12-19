@@ -62,7 +62,7 @@ forumRowTemplate = u"""<tr>
 </tr>"""
 lastForumMessageTemplate = u"""<a href="%(url)s#msg%(msg_id)s">
     %(topic_name)s par %(user_name)s
-<</a>"""
+</a>"""
 
 topicsListTemplate = u"""
 <h2>%s</h2>

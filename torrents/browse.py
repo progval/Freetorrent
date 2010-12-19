@@ -25,3 +25,40 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import re
+from common import db
+from common import html
+from common import render as commonRender
+from common import exceptions
+from torrents import render
+
+detailsMatch = re.compile('^%s-(?P<t_id>[a-f0-9]+)/$' %
+                          commonRender.urlAvailableChars)
+
+def run(environ):
+    status = '200 OK'
+    headers = []
+    path = environ['module_path']
+    if path == '':
+        responseBody = html.getHead(title='Catalogue des torrents')
+        responseBody += render.fullList("""
+                ORDER BY submit_time DESC
+                LIMIT 0, 10""")
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+    parsed = detailsMatch.match(path)
+    if parsed is not None:
+        t_id = parsed.group('t_id')
+        torrent = db.conn.cursor()
+        torrent.execute("SELECT name FROM torrents WHERE t_id=%s", (t_id,))
+        if torrent.rowcount == 0:
+            raise exceptions.Error404()
+        assert torrent.rowcount == 1
+        torrent = torrent.fetchone()
+        responseBody = html.getHead(title='%s (torrent)' % torrent[0])
+        responseBody += render.details(t_id)
+        reponseBody += html.getFoot()
+        return status, headers, responseBody
+
+    raise exceptions.Error404()

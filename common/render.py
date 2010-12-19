@@ -30,10 +30,13 @@ import postmarkup
 from unidecode import unidecode
 
 
-myPostmarkup = postmarkup.create(use_pygments=True)
-
+forumPostmarkup = postmarkup.create(use_pygments=True)
 def forum(text):
-    return myPostmarkup(text)
+    return forumPostmarkup(text)
+
+descriptionPostmarkup = postmarkup.create(use_pygments=True)
+def torrentDescription(text):
+    return descriptionPostmarkup(text)
 
 urlAvailableChars = '[a-zA-Z0-9_-]+'
 def getUrlPrettyName(name):

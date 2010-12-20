@@ -49,13 +49,26 @@ usersListRowTemplate = u"""
         %(id)s
     </td>
     <td class="username">
-        <a href="%(name)s">%(name)s</a>
+        <a href="%(name)s/">%(name)s</a>
     </td>
     <td class="messages">
         %(messages)s
     </td>
 </tr>
 """
+
+userProfileTemplate = u"""
+<table>
+    <tr>
+        <td>%(name)s</td>
+        <td rowspan="2">
+            <img src="%(avatar)s" alt="Pas d'avatar défini" />
+        </td>
+    </tr>
+    <tr>
+        <td><a href="mailto:%(email)s">%(email)s</a></td>
+    </tr>
+</table>"""
 
 def run(environ):
     status = '200 OK'
@@ -98,6 +111,22 @@ def run(environ):
                                             'messages': messages}
         responseBody = html.getHead(title=u"Recherche d'utilisateurs")
         responseBody += usersListTemplate % rows
+        responseBody += html.getFoot()
+        return status, headers, responseBody
+    else:
+        username = path.split('/')[0]
+        user = db.conn.cursor()
+        user.execute("SELECT u_id, email, avatar FROM users WHERE name=%s",
+                     (username,))
+        if user.rowcount == 0:
+            raise exceptions.Error404()
+        assert user.rowcount == 1
+        user = user.fetchone()
+        responseBody = html.getHead(title=u"%s (membre)" % username)
+        responseBody += userProfileTemplate % {'name': username,
+                                              'u_id': user[0],
+                                              'email': user[1].replace('@', '(4R0B4S3)'),
+                                              'avatar': user[2]}
         responseBody += html.getFoot()
         return status, headers, responseBody
 

@@ -37,12 +37,12 @@ under CC-0 licence.
 Database
 ========
 
-Engine
-------
+Engines
+-------
 
 This software was designed, at the early start, to use SQLite database, but
-MySQL appears to be better for our needs. SQLite might still work, but is
-not supported.
+MySQL appears to be better for our needs; that's why MySQL is used as main
+database, and SQLite only stores cache (in RAM).
 
 Configuration
 -------------

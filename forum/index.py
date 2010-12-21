@@ -27,6 +27,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
+import time
 from common import db
 from common import html
 from common import user
@@ -228,14 +229,29 @@ def run(environ):
                         'msg_id': lastMessage[0],
                         'topic_name': lastMessage[2],
                         'user_name': lastMessage[3]}
-            notRead = db.conn.cursor()
-            notRead.execute("""SELECT COUNT(*) FROM last_read
-                    INNER JOIN topics USING (t_id)
-                    INNER JOIN messages USING (t_id)
-                    WHERE f_id=%s AND last_read.time<messages.last_update
-                        AND last_read.u_id=%s""",
-                             (forum[0], user.currentUser.id))
-            notRead = notRead.fetchone()[0]
+            if user.currentUser.id != 0:
+                topics = db.conn.cursor()
+                topics.execute("SELECT t_id FROM topics WHERE f_id=%s", (forum[0],))
+                notRead = 0
+                for topic in topics:
+                    lastRead = db.conn.cursor()
+                    lastRead.execute("""
+                            SELECT time FROM last_read
+                            WHERE u_id=%s AND t_id=%s""",
+                            (user.currentUser.id, topic[0]))
+                    if lastRead.rowcount == 0:
+                        lastRead = 0
+                    else:
+                        lastRead = lastRead.fetchone()[0]
+                    counter = db.conn.cursor()
+                    counter.execute("""
+                            SELECT COUNT(*) FROM messages
+                            WHERE t_id=%s AND UNIX_TIMESTAMP(last_update)>%s""",
+                            (topic[0], lastRead))
+                    row = counter.fetchone()
+                    notRead += row[0]
+            else:
+                notRead = 0
             if notRead == 0:
                 prefix = 'no'
             else:
@@ -281,13 +297,25 @@ def run(environ):
                         {'url': getTopicUrl(topic[0]),
                         'msg_id': lastMessage[0],
                         'user_name': lastMessage[1]}
-            notRead = db.conn.cursor()
-            notRead.execute("""SELECT COUNT(*) FROM last_read
-                    INNER JOIN messages USING (t_id)
-                    WHERE t_id=%s AND last_read.time<messages.last_update
-                        AND last_read.u_id=%s""",
-                             (forum[0], user.currentUser.id))
-            notRead = notRead.fetchone()[0]
+            if user.currentUser.id != 0:
+                lastRead = db.conn.cursor()
+                lastRead.execute("""
+                        SELECT time FROM last_read
+                        WHERE t_id=%s AND last_read.u_id=%s""",
+                                 (topic[0], user.currentUser.id))
+                row = lastRead.fetchone()
+                if row is None:
+                    lastRead = 0
+                else:
+                    lastRead = row[0]
+                notRead = db.conn.cursor()
+                notRead.execute("""
+                        SELECT COUNT(*) FROM messages
+                        WHERE UNIX_TIMESTAMP(last_update)>%s AND t_id=%s""",
+                        (lastRead,topic[0]))
+                notRead = notRead.fetchone()[0]
+            else:
+                notRead = 0
             if notRead == 0:
                 prefix = 'no'
             else:
@@ -312,6 +340,13 @@ def run(environ):
         if topic.rowcount == 0:
             raise exceptions.Error404()
         topic = topic.fetchone()
+        updateLastRead = db.conn.cursor()
+        args = (t_id, user.currentUser.id)
+        updateLastRead.execute("""
+                DELETE FROM last_read
+                WHERE t_id=%s AND u_id=%s""", args)
+        updateLastRead.execute("INSERT INTO last_read VALUES(%s, %s, %s)",
+                               args + (time.time(),))
         messages = db.conn.cursor()
         messages.execute("""
                 SELECT m_id, content, created_on, users.u_id, users.name, avatar
@@ -349,7 +384,7 @@ def run(environ):
             cursor.execute("SELECT COUNT(*) FROM forums WHERE f_id=%s", (f_id,))
             try:
                 assert cursor.fetchone()[0] == 1
-                cursor.execute("INSERT INTO topics VALUES('', %s, %s)", 
+                cursor.execute("INSERT INTO topics VALUES('', %s, %s)",
                                (f_id, data['title']))
                 cursor.execute("""
                         INSERT INTO messages

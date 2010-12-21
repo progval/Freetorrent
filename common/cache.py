@@ -26,16 +26,49 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+import time
+import sqlite3
+from common import db
 
-################################
-# Configuration
-HOST = 'localhost'
-USER = 'freetorrent'
-PASSWD = 'torrentlibre'
-DBNAME = 'freetorrent'
-################################
+CACHE_LIFETIME = 60*60*4
 
-import MySQLdb
-conn = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWD, db=DBNAME,
-                       use_unicode="True", charset="utf8")
+conn = sqlite3.connect(':memory:')
+
+cursor = conn.cursor()
+cursor.execute("""
+        CREATE TABLE users (
+            u_id INTEGER,
+            last_calc INTEGER,
+            messages INTEGER,
+            upload FLOAT,
+            download FLOAT
+        );""")
+cursor.execute("""SELECT * FROM users WHERE u_id=0""")
+userColumns = [item[0] for item in cursor.description]
+cursor.close()
+
+def generateUserCache(u_id):
+    cursor = db.conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM messages WHERE u_id=%s", (u_id,))
+    messages = cursor.fetchone()[0]
+    upload = 0 #FIXME
+    download = 0 #FIXME
+    cacheCursor = conn.cursor()
+    cacheCursor.execute("DELETE FROM users WHERE u_id=?", (u_id,))
+    row = (u_id, time.time(), messages, upload, download)
+    cacheCursor.execute("INSERT INTO users VALUES (?,?,?,?,?)", row)
+    return row
+
+def getUserCache(u_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE u_id=?", (u_id,))
+    row = cursor.fetchone()
+    if row is None:
+        row = generateUserCache(u_id)
+    else:
+        if int(row[1]) < time.time() - CACHE_LIFETIME:
+            row = generateUserCache(u_id)
+    output = {}
+    for column, value in zip(userColumns, list(row)):
+        output.update({column: value})
+    return output

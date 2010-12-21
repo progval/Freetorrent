@@ -30,6 +30,7 @@ import re
 import cgi
 from common import db
 from common import html
+from common import cache
 from common import exceptions
 
 searchMatch = re.compile('^search-(?P<from>[0-9]+)-(?P<count>[0-9]+).htm(?P<args>.*)$')
@@ -61,12 +62,15 @@ userProfileTemplate = u"""
 <table>
     <tr>
         <td>%(name)s</td>
-        <td rowspan="2">
+        <td rowspan="3">
             <img src="%(avatar)s" alt="Pas d'avatar défini" />
         </td>
     </tr>
     <tr>
         <td><a href="mailto:%(email)s">%(email)s</a></td>
+    </tr>
+    <tr>
+        <td>A posté %(messages)s messages.</td>
     </tr>
 </table>"""
 
@@ -123,10 +127,12 @@ def run(environ):
         assert user.rowcount == 1
         user = user.fetchone()
         responseBody = html.getHead(title=u"%s (membre)" % username)
+        cached = cache.getUserCache(user[0])
         responseBody += userProfileTemplate % {'name': username,
                                               'u_id': user[0],
                                               'email': user[1].replace('@', '(4R0B4S3)'),
-                                              'avatar': user[2]}
+                                              'avatar': user[2],
+                                              'messages': cached['messages']}
         responseBody += html.getFoot()
         return status, headers, responseBody
 

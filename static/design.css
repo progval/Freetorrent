@@ -27,6 +27,14 @@ table {
 td, th {
 	border: solid 1px black;
 }
+form table {
+	width: auto;
+	min-width: 50%;
+	max-width: 100%;
+}
+form table td, form table th {
+	border: 0;
+}
 
 #header {
 	width: 100%;

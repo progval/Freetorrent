@@ -280,7 +280,7 @@ def run(environ):
         responseBody = html.getHead(title=u"%s (forum)" % forum[0])
         topicRows = u''
         topics = db.conn.cursor()
-        topics.execute("SELECT t_id, title FROM topics WHERE f_id=1")
+        topics.execute("SELECT t_id, title FROM topics WHERE f_id=%s", (f_id,))
         for topic in topics:
             lastMessage = db.conn.cursor()
             lastMessage.execute("""SELECT messages.m_id, users.name
